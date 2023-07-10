@@ -26,7 +26,7 @@
         eventShell = pkgs.npmlock2nix.v2.shell {
           src = ./.;
           nodejs = pkgs.nodejs;
-          # node_modules_mode = "copy";
+          node_modules_mode = "copy";
         };
       in {
         devShells.eventShell = eventShell;
