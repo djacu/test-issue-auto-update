@@ -28,8 +28,14 @@
           nodejs = pkgs.nodejs;
           node_modules_mode = "copy";
         };
+
+        eventModules = pkgs.npmlock2nix.v2.node_modules {
+          src = ./.;
+          nodejs = pkgs.nodejs;
+        };
       in {
         devShells.eventShell = eventShell;
+        packages.eventModules = eventModules;
       }
     );
 }

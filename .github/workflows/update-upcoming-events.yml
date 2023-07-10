@@ -30,13 +30,14 @@ jobs:
         with:
           SECRET_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: enter devshell
+      - name: build node modules
         run: |
-          nix develop .#eventShell
+          nix build .#eventModules
+          cp -r result/node_modules .
           ls
 
       - name: run script
         run: |
           ls
-          node .github/actions/update-upcoming-events/script.js
+          nix run nixpkgs#nodejs -- .github/actions/update-upcoming-events/script.js
           ls
