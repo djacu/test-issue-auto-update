@@ -33,5 +33,5 @@ jobs:
       - name: update
         run: |
           nix develop .#eventShell
+          ls
           node .github/actions/update-upcoming-events/script.js
-
