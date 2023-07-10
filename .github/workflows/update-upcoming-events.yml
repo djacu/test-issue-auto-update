@@ -30,8 +30,13 @@ jobs:
         with:
           SECRET_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: update
+      - name: enter devshell
         run: |
           nix develop .#eventShell
           ls
+
+      - name: run script
+        run: |
+          ls
           node .github/actions/update-upcoming-events/script.js
+          ls
