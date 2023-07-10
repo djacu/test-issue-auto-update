@@ -1,0 +1,37 @@
+name: "Update events in readme"
+
+on:
+  issues:
+    types:
+      - opened
+      - edited
+      - closed
+      - reopened
+      - labeled
+      - unlabeled
+
+  # every day at 4am pacific time
+  schedule:
+    - cron: "0 12 * * *"
+
+  workflow_dispatch: {}
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: nix setup
+        uses: ./.github/actions/nix-setup
+        with:
+          SECRET_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: update
+        run: |
+          nix develop .#eventShell
+          node .github/actions/update-upcoming-events/script.js
+
