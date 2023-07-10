@@ -25,7 +25,7 @@ async function run() {
   // Create Octokit constructor with custom user agent
   const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN,
-    userAgent: "socal-nug-event",
+    //userAgent: "socal-nug-event",
   });
 
   // load all open issues with the `event` label
