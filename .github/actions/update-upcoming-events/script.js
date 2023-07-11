@@ -74,7 +74,7 @@ async function run() {
 
     const markdown = `## Join Socal Nug at an upcoming event
 
-    ${upcomingEventsText}`;
+${upcomingEventsText}`;
 
     // update the upcoming events in the README
     await ReadmeBox.updateSection(markdown, {
