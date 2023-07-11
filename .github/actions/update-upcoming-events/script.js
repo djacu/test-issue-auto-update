@@ -11,18 +11,34 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 // config
-const owner = "djacu";
-const repo = "test-issue-auto-update";
+const repoName = process.env.REPOSITORY_NAME;
+const [owner, repo] = repoName.split("/");
+// manually set owner and repo below
+//const owner = "manual";
+//const repo = "manual";
 
 
 run();
 
 async function run() {
+    const octokit = getOctokitConstructor();
+    const issues = fetchIssues(octokit);
+    const upcomingEvents = getUpcomingEvents(issues);
+    const upcomingEventsText = makeUpcomingEventsText(upcomingEvents);
+    const readmeMarkdown = makeReadmeMarkdown(upcomingEventsText);
+    writeEventsToReadme(readmeMarkdown);
+}
+
+function getOctokitConstructor() {
     // Create Octokit constructor with custom user agent
     const octokit = new Octokit({
         auth: process.env.PERSONAL_ACCESS_TOKEN,
     });
 
+    return octokit;
+}
+
+async function fetchIssues(octokit) {
     // load all open issues with the `event` label
     const issues = await octokit.paginate("GET /repos/{owner}/{repo}/issues", {
         owner,
@@ -32,6 +48,10 @@ async function run() {
         per_page: 100,
     });
 
+    return issues;
+};
+
+function getUpcomingEvents(issues) {
     const upcomingEvents = issues.map((issue) => {
         const event = Object.fromEntries(
             issue.body
@@ -61,6 +81,10 @@ async function run() {
     }).sort(eventSort);
     console.log(upcomingEvents);
 
+    return upcomingEvents;
+}
+
+function makeUpcomingEventsText(upcomingEvents) {
     const upcomingEventsText = upcomingEvents.length
         ? upcomingEvents.map((event) => {
             return [
@@ -75,12 +99,20 @@ async function run() {
         : "There are currently no upcoming events scheduled.";
     console.log(upcomingEventsText);
 
+    return upcomingEventsText;
+}
+
+function makeReadmeMarkdown(upcomingEventsText) {
     const markdown =
         "## Join Socal Nug at an upcoming event\n\n"
         .concat(`${upcomingEventsText}`);
 
     console.log(markdown);
 
+    return markdown;
+}
+
+async function writeEventsToReadme(markdown) {
     // update the upcoming events in the README
     await ReadmeBox.updateSection(markdown, {
       owner,
