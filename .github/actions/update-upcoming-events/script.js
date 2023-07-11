@@ -22,22 +22,71 @@ const dateNextEvent = getDateOfNextEvent();
 run();
 
 async function run() {
-  // Create Octokit constructor with custom user agent
-  const octokit = new Octokit({
-    auth: process.env.GITHUB_TOKEN,
-    userAgent: "djacu",
-  });
+    // Create Octokit constructor with custom user agent
+    const octokit = new Octokit({
+        auth: secrets.PERSONAL_ACCESS_TOKEN,
+        //auth: process.env.GITHUB_TOKEN,
+        //userAgent: "djacu",
+    });
 
-  // load all open issues with the `event` label
-  const issues = await octokit.paginate("GET /repos/{owner}/{repo}/issues", {
-    owner,
-    repo,
-    labels: "event",
-    state: "open",
-    per_page: 100,
-  });
+    // load all open issues with the `event` label
+    const issues = await octokit.paginate("GET /repos/{owner}/{repo}/issues", {
+        owner,
+        repo,
+        labels: "event",
+        state: "open",
+        per_page: 100,
+    });
 
-  console.log(issues);
+    // console.log(issues);
+
+    const upcomingEvents = issues.map((issue) => {
+        const event = issue.body
+            .split("### ").filter(item => item)
+            .map((elem) => {
+                return elem.split("\n\n").filter(item => item);
+            })
+            .map(([key, value]) => [key.toLowerCase(), value]);
+
+        const issueData = (
+            ({number, html_url, user}) =>
+            ({
+                number,
+                html_url,
+                user:{
+                    login: user["login"],
+                    html_url: user["html_url"]
+                }
+            })
+        )(issue);
+
+        return {...Object.fromEntries(event), ...issueData};
+    });
+    console.log(upcomingEvents);
+
+    const upcomingEventsText = upcomingEvents.length
+        ? upcomingEvents.map((event) => {
+            return `- [#${event.number}](${event.html_url}) [${event.venue}](${event.link}) in ${event.city} at ${event.time} championed by [@${event.user.login}](${event.user.html_url})`;
+        }).join("\n")
+        : "There are currently no upcoming events scheduled.";
+
+    console.log(upcomingEventsText);
+
+    const markdown = `## Join Socal Nug at an upcoming event
+
+    ${upcomingEventsText}`;
+
+    // update the upcoming events in the README
+    await ReadmeBox.updateSection(markdown, {
+      owner,
+      repo,
+      token: process.env.GITHUB_TOKEN,
+      section: "events",
+      branch: "main",
+      message: "docs(README): update upcoming shows",
+    });
+   
+    console.log("README updated in %s/%s", owner, repo);
 
 //  const upcomingEvents = issues.map((issue) => {
 //    const [location] = issue.title.split(/\s+-\s+/g);
@@ -69,7 +118,7 @@ async function run() {
 //    repo,
 //    token: process.env.GITHUB_TOKEN,
 //    section: "events",
-//    branch: "master",
+//    branch: "main",
 //    message: "docs(README): update upcoming shows",
 //  });
 //
