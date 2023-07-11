@@ -41,3 +41,5 @@ jobs:
           ls
           nix run nixpkgs#nodejs -- .github/actions/update-upcoming-events/script.js
           ls
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
