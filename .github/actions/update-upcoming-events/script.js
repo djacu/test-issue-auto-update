@@ -80,7 +80,7 @@ async function run() {
     await ReadmeBox.updateSection(markdown, {
       owner,
       repo,
-      token: process.env.GITHUB_TOKEN,
+      token: process.env.PERSONAL_ACCESS_TOKEN,
       section: "events",
       branch: "main",
       message: "docs(README): update upcoming shows",
