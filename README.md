@@ -5,7 +5,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 <!--START_SECTION:events-->
 ## Join Socal Nug at an upcoming event
 
-    - [#2](https://github.com/djacu/test-issue-auto-update/issues/2) [El Dorado Park](https://goo.gl/maps/M65HqvUPh2CC8vqr7) in Long Beach at 11:00 AM championed by [@djacu](https://github.com/djacu)
+- [#2](https://github.com/djacu/test-issue-auto-update/issues/2) [El Dorado Park](https://goo.gl/maps/M65HqvUPh2CC8vqr7) in Long Beach at 11:00 AM championed by [@djacu](https://github.com/djacu)
 - [#1](https://github.com/djacu/test-issue-auto-update/issues/1) [Fire Wings](https://goo.gl/maps/2U3njbAiGCK41eQf6) in Long Beach at 5:00 PM championed by [@djacu](https://github.com/djacu)
 <!--END_SECTION:events-->
 
