@@ -3,6 +3,10 @@
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Proin sagittis nisl rhoncus mattis rhoncus urna neque. Sit amet mattis vulputate enim nulla aliquet porttitor. Venenatis urna cursus eget nunc scelerisque viverra mauris. Proin sagittis nisl rhoncus mattis rhoncus urna neque viverra justo. Euismod nisi porta lorem mollis aliquam ut porttitor leo. Enim praesent elementum facilisis leo vel. Nulla facilisi cras fermentum odio eu feugiat pretium. Blandit turpis cursus in hac habitasse platea dictumst quisque. Volutpat odio facilisis mauris sit amet. Pretium lectus quam id leo. Convallis tellus id interdum velit laoreet id donec.
 
 <!--START_SECTION:events-->
+## Join Socal Nug at an upcoming event
+
+    - [#2](https://github.com/djacu/test-issue-auto-update/issues/2) [El Dorado Park](https://goo.gl/maps/M65HqvUPh2CC8vqr7) in Long Beach at 11:00 AM championed by [@djacu](https://github.com/djacu)
+- [#1](https://github.com/djacu/test-issue-auto-update/issues/1) [Fire Wings](https://goo.gl/maps/2U3njbAiGCK41eQf6) in Long Beach at 5:00 PM championed by [@djacu](https://github.com/djacu)
 <!--END_SECTION:events-->
 
 ## How to join a event
