@@ -24,9 +24,9 @@ run();
 async function run() {
     // Create Octokit constructor with custom user agent
     const octokit = new Octokit({
-        // auth: secrets.PERSONAL_ACCESS_TOKEN,
-        auth: process.env.GITHUB_TOKEN,
-        userAgent: "djacu",
+        auth: secrets.PERSONAL_ACCESS_TOKEN,
+        // auth: process.env.GITHUB_TOKEN,
+        // userAgent: "djacu",
     });
 
     // load all open issues with the `event` label
