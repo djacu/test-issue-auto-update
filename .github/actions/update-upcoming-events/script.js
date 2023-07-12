@@ -22,7 +22,7 @@ run();
 
 async function run() {
     const octokit = getOctokitConstructor();
-    const issues = fetchIssues(octokit);
+    const issues = await fetchIssues(octokit);
     const upcomingEvents = getUpcomingEvents(issues);
     const upcomingEventsText = makeUpcomingEventsText(upcomingEvents);
     const readmeMarkdown = makeReadmeMarkdown(upcomingEventsText);
