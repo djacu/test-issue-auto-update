@@ -16,7 +16,9 @@ const [owner, repo] = repoName.split("/");
 // manually set owner and repo below
 //const owner = "manual";
 //const repo = "manual";
-
+console.log(repoName);
+console.log(owner);
+console.log(repo);
 
 run();
 
