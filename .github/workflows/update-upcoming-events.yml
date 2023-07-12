@@ -41,4 +41,4 @@ jobs:
           nix run nixpkgs#nodejs -- .github/actions/update-upcoming-events/script.js
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          REPOSITORY_NAME: ${{ github.event.repository.name }}
+          REPOSITORY_NAME: ${{ vars.GITHUB_REPOSITORY }}
