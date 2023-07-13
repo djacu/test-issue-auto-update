@@ -43,6 +43,10 @@
           packages = [pkgs.poetry pkgs.python311];
         };
 
+        # ended up pinning cryptography to 40.0.1
+        # this might help
+        # https://github.com/nix-community/poetry2nix/issues/413
+        # still failed to build
         pygithubShell = poetry2nix.mkPoetryEnv {
           projectDir = ./.;
           python = pkgs.python311;
