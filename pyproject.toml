@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "event-updates"
+version = "0.1.0"
+description = ""
+authors = ["Daniel Baker <daniel.n.baker@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "event_updates"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+PyGithub = "^1.59.0"
+cryptography = "41.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
