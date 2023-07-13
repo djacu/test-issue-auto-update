@@ -1,5 +1,8 @@
 const { Octokit } = require("octokit");
+
+
 const { ReadmeBox } = require("readme-box");
+
 const dayjs = require("dayjs");
 
 const localizedFormat = require('dayjs/plugin/localizedFormat')
@@ -25,10 +28,11 @@ async function createEventPages() {
     const issues = await fetchIssues(octokit);
     const upcomingEvents = getUpcomingEvents(issues);
     const eventPageMarkdown = makeEventPageMarkdown(upcomingEvents);
-    console.log(eventPageMarkdown);
 
-    const response = await octokit.rest.repos.get({ owner, repo });
-    console.log(response.data[0]);
+    const defaultBranch = await getDefaultBranch(octokit);
+    const repoData = {owner, repo, defaultBranch};
+    const shaData = await getShaData(octokit, repoData);
+    console.log(shaData);
 }
 
 function makeEventPageMarkdown(events) {
@@ -56,6 +60,26 @@ function makeEventPageMarkdown(events) {
         "+++",
     ].join("\n"));
 }
+
+async function getDefaultBranch(octokit) {
+    const response = await octokit.rest.repos.get({ owner, repo });
+    return response.data.default_branch;
+}
+
+async function getShaData(octokit, repoData) {
+    const response = await octokit.rest.repos.listCommits({
+        owner: repoData.owner,
+        repo: repoData.repo,
+        sha: repoData.defaultBranch,
+        per_page: 1
+    });
+
+    const latestCommitSha = response.data[0].sha;
+    const treeSha = response.data[0].commit.tree.sha;
+
+    return {latestCommitSha, treeSha};
+}
+
 
 async function run() {
     const octokit = getOctokitConstructor();
