@@ -16,11 +16,46 @@ const [owner, repo] = repoName.split("/");
 // manually set owner and repo below
 //const owner = "manual";
 //const repo = "manual";
-console.log(repoName);
-console.log(owner);
-console.log(repo);
 
-run();
+//run();
+createEventPages();
+
+async function createEventPages() {
+    const octokit = getOctokitConstructor();
+    const issues = await fetchIssues(octokit);
+    const upcomingEvents = getUpcomingEvents(issues);
+    const eventPageMarkdown = makeEventPageMarkdown(upcomingEvents);
+    console.log(eventPageMarkdown);
+
+    const response = await octokit.rest.repos.get({ owner, repo });
+    console.log(response.data[0]);
+}
+
+function makeEventPageMarkdown(events) {
+    const boilerPlate = [
+        //"# Welcome to the Southern California Nix Users Group",
+        //"",
+        //"We're a vibrant community centered around the Nix ecosystem. This group is for you if you're an experienced Nix developer, a Linux enthusiast, or someone who loves learning about cutting-edge technology!",
+        //"",
+        //"Our meetups are a forum for sharing knowledge, discussing challenges, and celebrating success within the world of Nix. We delve into topics such as package management, reproducible builds, and more.",
+        //"",
+        //"Each meetup features a presentation about a particular aspect of Nix, like advanced techniques, an introduction for beginners, or a real-world use case walkthrough.",
+        //"",
+    ];
+
+    return events.map((event) => [
+        "+++",
+        `title = ${event.title}`,
+        "[extra]",
+        `organizer = ${event.user.login}`,
+        `location = ${event.venue}`,
+        `city = ${event.city}`,
+        `event_date = ${event.date}`,
+        `event_time = ${event.time}`,
+        `event_link = ${event.link}`,
+        "+++",
+    ].join("\n"));
+}
 
 async function run() {
     const octokit = getOctokitConstructor();
@@ -65,8 +100,9 @@ function getUpcomingEvents(issues) {
         );
 
         const issueData = (
-            ({number, html_url, user}) =>
+            ({title, number, html_url, user}) =>
             ({
+                title,
                 number,
                 html_url,
                 user:{
