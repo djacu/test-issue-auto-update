@@ -27,57 +27,83 @@ async function createEventPages() {
     const octokit = getOctokitConstructor();
     const issues = await fetchIssues(octokit);
     const upcomingEvents = getUpcomingEvents(issues);
-    const eventPageMarkdown = makeEventPageMarkdown(upcomingEvents);
+    const eventPages = makeEventPageMarkdown(upcomingEvents);
+    //console.log(eventPages);
 
     const defaultBranch = await getDefaultBranch(octokit);
     const repoData = {owner, repo, defaultBranch};
     const shaData = await getShaData(octokit, repoData);
 
-    const treeContent = [
-        {
-            path: "content/events/test.md",
+    const treeContent = eventPages.map((event) => {
+        const filename = makeEventPageFilename(event);
+        return {
+            path: `content/events/${filename}`,
             mode: "100644",
             type: "blob",
-            content: "lorem ipsum",
-        }
-    ];
-
-    const simpleTree = await octokit.rest.git.createTree({
-        owner,
-        repo,
-        tree: treeContent,
-        base_tree: shaData.treeSha,
+            content: `${ event.markdown }`,
+        };
     });
+    //console.log(treeContent);
 
-    const simpleCommit = await octokit.rest.git.createCommit({
-        owner,
-        repo,
-        message: "a simple commit",
-        tree: simpleTree.data.sha,
-        parents: [shaData.latestCommitSha],
-        author: {
-            name: "Daniel Baker",
-            email: "daniel.n.baker@gmail.com",
-        },
-    });
+    //const treeContent = [
+    //    {
+    //        path: "content/events/test.md",
+    //        mode: "100644",
+    //        type: "blob",
+    //        content: "lorem ipsum",
+    //    }
+    //];
 
-    const simpleRef = await octokit.rest.git.createRef({
-        owner,
-        repo,
-        ref: "refs/heads/simple-branch",
-        sha: simpleCommit.data.sha,
-    });
+    //const simpleTree = await octokit.rest.git.createTree({
+    //    owner,
+    //    repo,
+    //    tree: treeContent,
+    //    base_tree: shaData.treeSha,
+    //});
 
-    const simplePull = await octokit.rest.pulls.create({
-        owner,
-        repo,
-        title: "A simple test.",
-        head: "simple-branch",
-        base: "main",
-    });
+    //const simpleCommit = await octokit.rest.git.createCommit({
+    //    owner,
+    //    repo,
+    //    message: "a simple commit",
+    //    tree: simpleTree.data.sha,
+    //    parents: [shaData.latestCommitSha],
+    //    author: {
+    //        name: "Daniel Baker",
+    //        email: "daniel.n.baker@gmail.com",
+    //    },
+    //});
+    ////console.log(simpleCommit);
 
+    //const simpleRef = await octokit.rest.git.createRef({
+    //    owner,
+    //    repo,
+    //    ref: "refs/heads/simple-branch",
+    //    sha: simpleCommit.data.sha,
+    //});
+    ////console.log(simpleRef);
 
-    console.log(shaData);
+    //const commitCompare = await octokit.rest.repos.compareCommitsWithBasehead({
+    //    owner,
+    //    repo,
+    //    basehead: "main...simple-branch",
+    //});
+    ////console.log(commitCompare);
+
+    //if (commitCompare.data.files.length === 0) {
+    //    const removedRef = await octokit.rest.git.deleteRef({
+    //        owner,
+    //        repo,
+    //        ref: "heads/simple-branch",
+    //    });
+    //} else {
+    //    const simplePull = await octokit.rest.pulls.create({
+    //        owner,
+    //        repo,
+    //        title: "A simple test.",
+    //        head: "simple-branch",
+    //        base: "main",
+    //    });
+    //}
 }
 
 function makeEventPageMarkdown(events) {
@@ -92,18 +118,28 @@ function makeEventPageMarkdown(events) {
         //"",
     ];
 
-    return events.map((event) => [
-        "+++",
-        `title = ${event.title}`,
-        "[extra]",
-        `organizer = ${event.user.login}`,
-        `location = ${event.venue}`,
-        `city = ${event.city}`,
-        `event_date = ${event.date}`,
-        `event_time = ${event.time}`,
-        `event_link = ${event.link}`,
-        "+++",
-    ].join("\n"));
+    return events.map((event) => {
+        return {
+            data: event,
+            markdown: [
+                "+++",
+                `title = ${event.title}`,
+                "[extra]",
+                `organizer = ${event.user.login}`,
+                `location = ${event.venue}`,
+                `city = ${event.city}`,
+                `event_date = ${event.date}`,
+                `event_time = ${event.time}`,
+                `event_link = ${event.link}`,
+                `event_issue_number = ${event.number}`,
+                "+++",
+            ].join("\n")
+        }
+    });
+}
+
+function makeEventPageFilename(event) {
+    return `${event.data.datetime.format('YYYY-MM-DD')}--${event.data.title}--${event.data.number}.md`;
 }
 
 async function getDefaultBranch(octokit) {
@@ -186,7 +222,7 @@ function getUpcomingEvents(issues) {
 
         return {...event, ...issueData, ...{datetime}};
     }).sort(eventSort);
-    console.log(upcomingEvents);
+    //console.log(upcomingEvents);
 
     return upcomingEvents;
 }
@@ -204,7 +240,7 @@ function makeUpcomingEventsText(upcomingEvents) {
             ].join(" ");
         }).join("\n")
         : "There are currently no upcoming events scheduled.";
-    console.log(upcomingEventsText);
+    //console.log(upcomingEventsText);
 
     return upcomingEventsText;
 }
@@ -214,7 +250,7 @@ function makeReadmeMarkdown(upcomingEventsText) {
         "## Join Socal Nug at an upcoming event\n\n"
         .concat(`${upcomingEventsText}`);
 
-    console.log(markdown);
+    //console.log(markdown);
 
     return markdown;
 }
@@ -229,7 +265,7 @@ async function writeEventsToReadme(markdown) {
       branch: "main",
       message: "Action: Update upcoming events.",
     });
-    console.log("README updated in %s/%s", owner, repo);
+    //console.log("README updated in %s/%s", owner, repo);
 }
 
 function eventSort(a, b) {
