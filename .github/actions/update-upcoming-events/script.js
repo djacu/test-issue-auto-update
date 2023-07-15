@@ -20,8 +20,8 @@ const [owner, repo] = repoName.split("/");
 //const owner = "manual";
 //const repo = "manual";
 
-//run();
 createEventPages();
+run();
 
 async function createEventPages() {
     const octokit = getOctokitConstructor();
