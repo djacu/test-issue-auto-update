@@ -51,15 +51,15 @@ function makeEventPageMarkdown(events) {
             data: event,
             markdown: [
                 "+++",
-                `title = ${event.name}`,
+                `title = "${event.name}"`,
                 "[extra]",
-                `organizer = ${event.user.login}`,
-                `location = ${event.venue}`,
-                `city = ${event.city}`,
-                `event_date = ${event.date}`,
-                `event_time = ${event.time}`,
-                `event_link = ${event.link}`,
-                `event_issue_number = ${event.number}`,
+                `organizer = "${event.user.login}"`,
+                `location = "${event.venue}"`,
+                `city = "${event.city}"`,
+                `event_date = "${event.date}"`,
+                `event_time = "${event.time}"`,
+                `event_link = "${event.link}"`,
+                `event_issue_number = "${event.number}"`,
                 "+++",
             ].join("\n")
         }
