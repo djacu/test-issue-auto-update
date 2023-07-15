@@ -45,65 +45,56 @@ async function createEventPages() {
     });
     //console.log(treeContent);
 
-    //const treeContent = [
-    //    {
-    //        path: "content/events/test.md",
-    //        mode: "100644",
-    //        type: "blob",
-    //        content: "lorem ipsum",
-    //    }
-    //];
+    const simpleTree = await octokit.rest.git.createTree({
+        owner,
+        repo,
+        tree: treeContent,
+        base_tree: shaData.treeSha,
+    });
 
-    //const simpleTree = await octokit.rest.git.createTree({
-    //    owner,
-    //    repo,
-    //    tree: treeContent,
-    //    base_tree: shaData.treeSha,
-    //});
+    const simpleCommit = await octokit.rest.git.createCommit({
+        owner,
+        repo,
+        message: "a simple commit",
+        tree: simpleTree.data.sha,
+        parents: [shaData.latestCommitSha],
+        author: {
+            name: "Daniel Baker",
+            email: "daniel.n.baker@gmail.com",
+        },
+    });
+    //console.log(simpleCommit);
 
-    //const simpleCommit = await octokit.rest.git.createCommit({
-    //    owner,
-    //    repo,
-    //    message: "a simple commit",
-    //    tree: simpleTree.data.sha,
-    //    parents: [shaData.latestCommitSha],
-    //    author: {
-    //        name: "Daniel Baker",
-    //        email: "daniel.n.baker@gmail.com",
-    //    },
-    //});
-    ////console.log(simpleCommit);
+    const simpleRef = await octokit.rest.git.createRef({
+        owner,
+        repo,
+        ref: "refs/heads/simple-branch",
+        sha: simpleCommit.data.sha,
+    });
+    //console.log(simpleRef);
 
-    //const simpleRef = await octokit.rest.git.createRef({
-    //    owner,
-    //    repo,
-    //    ref: "refs/heads/simple-branch",
-    //    sha: simpleCommit.data.sha,
-    //});
-    ////console.log(simpleRef);
+    const commitCompare = await octokit.rest.repos.compareCommitsWithBasehead({
+        owner,
+        repo,
+        basehead: "main...simple-branch",
+    });
+    //console.log(commitCompare);
 
-    //const commitCompare = await octokit.rest.repos.compareCommitsWithBasehead({
-    //    owner,
-    //    repo,
-    //    basehead: "main...simple-branch",
-    //});
-    ////console.log(commitCompare);
-
-    //if (commitCompare.data.files.length === 0) {
-    //    const removedRef = await octokit.rest.git.deleteRef({
-    //        owner,
-    //        repo,
-    //        ref: "heads/simple-branch",
-    //    });
-    //} else {
-    //    const simplePull = await octokit.rest.pulls.create({
-    //        owner,
-    //        repo,
-    //        title: "A simple test.",
-    //        head: "simple-branch",
-    //        base: "main",
-    //    });
-    //}
+    if (commitCompare.data.files.length === 0) {
+        const removedRef = await octokit.rest.git.deleteRef({
+            owner,
+            repo,
+            ref: "heads/simple-branch",
+        });
+    } else {
+        const simplePull = await octokit.rest.pulls.create({
+            owner,
+            repo,
+            title: "A simple test.",
+            head: "simple-branch",
+            base: "main",
+        });
+    }
 }
 
 function makeEventPageMarkdown(events) {
