@@ -26,13 +26,60 @@ createEventPages();
 async function createEventPages() {
     const octokit = getOctokitConstructor();
     const issues = await fetchIssues(octokit);
+    //console.log(issues);
     const upcomingEvents = getUpcomingEvents(issues);
     const eventPages = makeEventPageMarkdown(upcomingEvents);
     //console.log(eventPages);
 
+    await commitChanges(octokit, eventPages);
+}
+
+function makeEventPageMarkdown(events) {
+    const boilerPlate = [
+        //"# Welcome to the Southern California Nix Users Group",
+        //"",
+        //"We're a vibrant community centered around the Nix ecosystem. This group is for you if you're an experienced Nix developer, a Linux enthusiast, or someone who loves learning about cutting-edge technology!",
+        //"",
+        //"Our meetups are a forum for sharing knowledge, discussing challenges, and celebrating success within the world of Nix. We delve into topics such as package management, reproducible builds, and more.",
+        //"",
+        //"Each meetup features a presentation about a particular aspect of Nix, like advanced techniques, an introduction for beginners, or a real-world use case walkthrough.",
+        //"",
+    ];
+
+    return events.map((event) => {
+        return {
+            data: event,
+            markdown: [
+                "+++",
+                `title = ${event.name}`,
+                "[extra]",
+                `organizer = ${event.user.login}`,
+                `location = ${event.venue}`,
+                `city = ${event.city}`,
+                `event_date = ${event.date}`,
+                `event_time = ${event.time}`,
+                `event_link = ${event.link}`,
+                `event_issue_number = ${event.number}`,
+                "+++",
+            ].join("\n")
+        }
+    });
+}
+
+async function commitChanges(octokit, eventPages) {
+
     const defaultBranch = await getDefaultBranch(octokit);
     const repoData = {owner, repo, defaultBranch};
     const shaData = await getShaData(octokit, repoData);
+    const commitData = {
+        author: {
+            name: "Daniel Baker",
+            email: "daniel.n.baker@gmail.com",
+        },
+        branch: "action-event-update",
+        message: "Action: update events pages.",
+        title: "Action: Update Events Pages",
+    };
 
     const treeContent = eventPages.map((event) => {
         const filename = makeEventPageFilename(event);
@@ -55,28 +102,25 @@ async function createEventPages() {
     const simpleCommit = await octokit.rest.git.createCommit({
         owner,
         repo,
-        message: "a simple commit",
+        message: commitData.message,
         tree: simpleTree.data.sha,
         parents: [shaData.latestCommitSha],
-        author: {
-            name: "Daniel Baker",
-            email: "daniel.n.baker@gmail.com",
-        },
+        author: commitData.author,
     });
     //console.log(simpleCommit);
 
     const simpleRef = await octokit.rest.git.createRef({
         owner,
         repo,
-        ref: "refs/heads/simple-branch",
+        ref: `refs/heads/${commitData.branch}`,
         sha: simpleCommit.data.sha,
     });
-    //console.log(simpleRef);
+    console.log(simpleRef);
 
     const commitCompare = await octokit.rest.repos.compareCommitsWithBasehead({
         owner,
         repo,
-        basehead: "main...simple-branch",
+        basehead: `main...${commitData.branch}`,
     });
     //console.log(commitCompare);
 
@@ -84,53 +128,19 @@ async function createEventPages() {
         const removedRef = await octokit.rest.git.deleteRef({
             owner,
             repo,
-            ref: "heads/simple-branch",
+            ref: `heads/${commitData.branch}`,
         });
+        console.log(removedRef);
     } else {
         const simplePull = await octokit.rest.pulls.create({
             owner,
             repo,
-            title: "A simple test.",
-            head: "simple-branch",
+            title: `${commitData.title}`,
+            head: `${commitData.branch}`,
             base: "main",
         });
+        console.log(simplePull);
     }
-}
-
-function makeEventPageMarkdown(events) {
-    const boilerPlate = [
-        //"# Welcome to the Southern California Nix Users Group",
-        //"",
-        //"We're a vibrant community centered around the Nix ecosystem. This group is for you if you're an experienced Nix developer, a Linux enthusiast, or someone who loves learning about cutting-edge technology!",
-        //"",
-        //"Our meetups are a forum for sharing knowledge, discussing challenges, and celebrating success within the world of Nix. We delve into topics such as package management, reproducible builds, and more.",
-        //"",
-        //"Each meetup features a presentation about a particular aspect of Nix, like advanced techniques, an introduction for beginners, or a real-world use case walkthrough.",
-        //"",
-    ];
-
-    return events.map((event) => {
-        return {
-            data: event,
-            markdown: [
-                "+++",
-                `title = ${event.title}`,
-                "[extra]",
-                `organizer = ${event.user.login}`,
-                `location = ${event.venue}`,
-                `city = ${event.city}`,
-                `event_date = ${event.date}`,
-                `event_time = ${event.time}`,
-                `event_link = ${event.link}`,
-                `event_issue_number = ${event.number}`,
-                "+++",
-            ].join("\n")
-        }
-    });
-}
-
-function makeEventPageFilename(event) {
-    return `${event.data.datetime.format('YYYY-MM-DD')}--${event.data.title}--${event.data.number}.md`;
 }
 
 async function getDefaultBranch(octokit) {
@@ -150,6 +160,10 @@ async function getShaData(octokit, repoData) {
     const treeSha = response.data[0].commit.tree.sha;
 
     return {latestCommitSha, treeSha};
+}
+
+function makeEventPageFilename(event) {
+    return `${event.data.datetime.format('YYYY-MM-DD')}--${event.data.name}--${event.data.number}.md`;
 }
 
 
@@ -190,7 +204,7 @@ function getUpcomingEvents(issues) {
             issue.body
             .split("### ").filter(item => item)
             .map((elem) => {
-                return elem.split("\n\n").filter(item => item);
+                return elem.split(/[\r]?\n[\r]?\n/).filter(item => item);
             })
             .map(([key, value]) => [key.toLowerCase(), value])
         );
