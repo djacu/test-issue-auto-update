@@ -32,6 +32,51 @@ async function createEventPages() {
     const defaultBranch = await getDefaultBranch(octokit);
     const repoData = {owner, repo, defaultBranch};
     const shaData = await getShaData(octokit, repoData);
+
+    const treeContent = [
+        {
+            path: "content/events/test.md",
+            mode: "100644",
+            type: "blob",
+            content: "lorem ipsum",
+        }
+    ];
+
+    const simpleTree = await octokit.rest.git.createTree({
+        owner,
+        repo,
+        tree: treeContent,
+        base_tree: shaData.treeSha,
+    });
+
+    const simpleCommit = await octokit.rest.git.createCommit({
+        owner,
+        repo,
+        message: "a simple commit",
+        tree: simpleTree.data.sha,
+        parents: [shaData.latestCommitSha],
+        author: {
+            name: "Daniel Baker",
+            email: "daniel.n.baker@gmail.com",
+        },
+    });
+
+    const simpleRef = await octokit.rest.git.createRef({
+        owner,
+        repo,
+        ref: "refs/heads/simple-branch",
+        sha: simpleCommit.data.sha,
+    });
+
+    const simplePull = await octokit.rest.pulls.create({
+        owner,
+        repo,
+        title: "A simple test.",
+        head: "simple-branch",
+        base: "main",
+    });
+
+
     console.log(shaData);
 }
 
