@@ -4,6 +4,13 @@ title: "[Event]: "
 labels: ["event"]
 body:
   - type: input
+    id: name
+    attributes:
+      label: Name
+      description: What is the name of this event?
+    validations:
+      required: true
+  - type: input
     id: venue
     attributes:
       label: Venue
