@@ -21,17 +21,61 @@ const [owner, repo] = repoName.split("/");
 //const repo = "manual";
 
 createEventPages();
-run();
+//run();
 
 async function createEventPages() {
     const octokit = getOctokitConstructor();
     const issues = await fetchIssues(octokit);
-    //console.log(issues);
-    const upcomingEvents = getUpcomingEvents(issues);
-    const eventPages = makeEventPageMarkdown(upcomingEvents);
-    //console.log(eventPages);
 
-    await commitChanges(octokit, eventPages);
+    const eventReadmeTree = await makeEventReadmeTree(octokit, issues);
+    const eventPagesTree = await makeEventPagesTree(octokit, issues);
+    const treeContent = [...eventPagesTree, ...eventReadmeTree];
+    //console.log(treeContent);
+
+    await commitChanges(octokit, treeContent);
+}
+
+async function makeEventPagesTree(octokit, issues) {
+    const upcomingEvents = getUpcomingEvents(issues);
+
+    const eventPages = makeEventPageMarkdown(upcomingEvents);
+
+    const treeContent = eventPages.map((event) => {
+        const filename = makeEventPageFilename(event);
+        return {
+            path: `content/events/${filename}`,
+            mode: "100644",
+            type: "blob",
+            content: `${ event.markdown }`,
+        };
+    });
+
+    return treeContent;
+}
+
+async function makeEventReadmeTree(octokit, issues) {
+    const upcomingEvents = getUpcomingEvents(issues);
+    const eventsReadmeMarkdown = makeEventReadmeMarkdown(upcomingEvents);
+
+    const readme = await octokit.rest.repos.getContent({
+        owner,
+        repo,
+        path: "README.md",
+    });
+    const readmeOpts = {
+        oldContents: Buffer.from(readme.data.content, "base64").toString("utf8"),
+        newContents: eventsReadmeMarkdown,
+        section: "events",
+    };
+
+    const newSection = replaceSection(readmeOpts);
+
+    return [{
+        path: "README.md",
+        mode: "100644",
+        type: "blob",
+        content: newSection,
+    }];
 }
 
 function makeEventPageMarkdown(events) {
@@ -66,7 +110,7 @@ function makeEventPageMarkdown(events) {
     });
 }
 
-async function commitChanges(octokit, eventPages) {
+async function commitChanges(octokit, treeContent) {
 
     const defaultBranch = await getDefaultBranch(octokit);
     const repoData = {owner, repo, defaultBranch};
@@ -80,17 +124,6 @@ async function commitChanges(octokit, eventPages) {
         message: "Action: update events pages.",
         title: "Action: Update Events Pages",
     };
-
-    const treeContent = eventPages.map((event) => {
-        const filename = makeEventPageFilename(event);
-        return {
-            path: `content/events/${filename}`,
-            mode: "100644",
-            type: "blob",
-            content: `${ event.markdown }`,
-        };
-    });
-    //console.log(treeContent);
 
     const simpleTree = await octokit.rest.git.createTree({
         owner,
@@ -171,7 +204,7 @@ async function run() {
     const octokit = getOctokitConstructor();
     const issues = await fetchIssues(octokit);
     const upcomingEvents = getUpcomingEvents(issues);
-    const upcomingEventsText = makeUpcomingEventsText(upcomingEvents);
+    const upcomingEventsText = makeEventReadmeMarkdown(upcomingEvents);
     const readmeMarkdown = makeReadmeMarkdown(upcomingEventsText);
     writeEventsToReadme(readmeMarkdown);
 }
@@ -232,7 +265,7 @@ function getUpcomingEvents(issues) {
     return upcomingEvents;
 }
 
-function makeUpcomingEventsText(upcomingEvents) {
+function makeEventReadmeMarkdown(upcomingEvents) {
     const upcomingEventsText = upcomingEvents.length
         ? upcomingEvents.map((event) => {
             return [
@@ -245,19 +278,33 @@ function makeUpcomingEventsText(upcomingEvents) {
             ].join(" ");
         }).join("\n")
         : "There are currently no upcoming events scheduled.";
-    //console.log(upcomingEventsText);
 
-    return upcomingEventsText;
-}
-
-function makeReadmeMarkdown(upcomingEventsText) {
     const markdown =
         "## Join Socal Nug at an upcoming event\n\n"
         .concat(`${upcomingEventsText}`);
 
-    //console.log(markdown);
-
     return markdown;
+}
+
+function replaceSection(opts) {
+    const { regex, start, end } = createRegExp(opts.section)
+
+    if (!regex.test(opts.oldContents)) {
+      throw new Error(
+        `Contents do not contain start/end comments for section "${opts.section}"`
+      )
+    }
+
+    const newContentsWithComments = `${start}\n${opts.newContents}\n${end}`
+    return opts.oldContents.replace(regex, newContentsWithComments)
+  }
+
+
+function createRegExp(section) {
+    const start = `<!--START_SECTION:${section}-->`
+    const end = `<!--END_SECTION:${section}-->`
+    const regex = new RegExp(`${start}\n(?:(?<content>[\\s\\S]+)\n)?${end}`)
+    return { regex, start, end }
 }
 
 async function writeEventsToReadme(markdown) {
