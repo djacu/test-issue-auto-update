@@ -5,10 +5,10 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 <!--START_SECTION:events-->
 ## Join Socal Nug at an upcoming event
 
-- [#1](https://github.com/djacu/test-issue-auto-update/issues/1) [Fire Wings](https://goo.gl/maps/2U3njbAiGCK41eQf6) in Long Beach on Sunday, July 9, 2023 10:00 AM championed by [@djacu](https://github.com/djacu)
-- [#2](https://github.com/djacu/test-issue-auto-update/issues/2) [El Dorado Park](https://goo.gl/maps/M65HqvUPh2CC8vqr7) in Long Beach on Tuesday, August 8, 2023 4:00 AM championed by [@djacu](https://github.com/djacu)
-- [#3](https://github.com/djacu/test-issue-auto-update/issues/3) [23b Shop](https://goo.gl/maps/A6bLZojqcRCgViWs9) in Fullerton on Friday, October 13, 2023 7:00 AM championed by [@djacu](https://github.com/djacu)
-- [#15](https://github.com/djacu/test-issue-auto-update/issues/15) [Alamitos Neighborhood Library](https://goo.gl/maps/JWYboFbBsmPMBTio7) in Long Beach on Saturday, November 4, 2023 5:30 AM championed by [@djacu](https://github.com/djacu)
+- [#1](https://github.com/djacu/test-issue-auto-update/issues/1) [Fire Wings](https://goo.gl/maps/2U3njbAiGCK41eQf6) in Long Beach on Sunday, July 9, 2023 5:00 PM championed by [@djacu](https://github.com/djacu)
+- [#2](https://github.com/djacu/test-issue-auto-update/issues/2) [El Dorado Park](https://goo.gl/maps/M65HqvUPh2CC8vqr7) in Long Beach on Tuesday, August 8, 2023 11:00 AM championed by [@djacu](https://github.com/djacu)
+- [#3](https://github.com/djacu/test-issue-auto-update/issues/3) [23b Shop](https://goo.gl/maps/A6bLZojqcRCgViWs9) in Fullerton on Friday, October 13, 2023 2:00 PM championed by [@djacu](https://github.com/djacu)
+- [#15](https://github.com/djacu/test-issue-auto-update/issues/15) [Alamitos Neighborhood Library](https://goo.gl/maps/JWYboFbBsmPMBTio7) in Long Beach on Saturday, November 4, 2023 12:30 PM championed by [@djacu](https://github.com/djacu)
 <!--END_SECTION:events-->
 
 ## How to join a event
